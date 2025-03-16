@@ -73,7 +73,7 @@ The following SQL queries were developed to answer specific business questions:
 1. **Write a SQL query to retrieve all columns for sales made on '2022-11-05**:
 ```sql
 SELECT *
-FROM retail_sales
+FROM sql_project1.retail_sales
 WHERE sale_date = '2022-11-05';
 ```
 
@@ -81,7 +81,7 @@ WHERE sale_date = '2022-11-05';
 ```sql
 SELECT 
   *
-FROM retail_sales
+FROM sql_project1.retail_sales
 WHERE 
     category = 'Clothing'
     AND 
@@ -96,95 +96,82 @@ SELECT
     category,
     SUM(total_sale) as net_sale,
     COUNT(*) as total_orders
-FROM retail_sales
-GROUP BY 1
+FROM sql_project1.retail_sales
+GROUP BY 1   
 ```
 
 4. **Write a SQL query to find the average age of customers who purchased items from the 'Beauty' category.**:
 ```sql
-SELECT
-    ROUND(AVG(age), 2) as avg_age
-FROM retail_sales
-WHERE category = 'Beauty'
+SELECT AVG(age) FROM sql_project1.retail_sales
+WHERE Category ='Beauty'
 ```
 
 5. **Write a SQL query to find all transactions where the total_sale is greater than 1000.**:
 ```sql
-SELECT * FROM retail_sales
-WHERE total_sale > 1000
+SELECT * FROM  sql_project1.retail_sales
+WHERE total_sale >1000
 ```
 
 6. **Write a SQL query to find the total number of transactions (transaction_id) made by each gender in each category.**:
 ```sql
-SELECT 
-    category,
-    gender,
-    COUNT(*) as total_trans
-FROM retail_sales
-GROUP 
-    BY 
-    category,
-    gender
-ORDER BY 1
+SELECT category , gender,
+count(*) as total_trans
+FROM sql_project1.retail_sales
+GROUP BY
+     category, gender
 ```
 
 7. **Write a SQL query to calculate the average sale for each month. Find out best selling month in each year**:
 ```sql
-SELECT 
-       year,
-       month,
-    avg_sale
-FROM 
-(    
-SELECT 
-    EXTRACT(YEAR FROM sale_date) as year,
-    EXTRACT(MONTH FROM sale_date) as month,
-    AVG(total_sale) as avg_sale,
-    RANK() OVER(PARTITION BY EXTRACT(YEAR FROM sale_date) ORDER BY AVG(total_sale) DESC) as rank
-FROM retail_sales
-GROUP BY 1, 2
-) as t1
-WHERE rank = 1
+SELECT * FROM (
+    SELECT 
+        YEAR(sale_date) AS year,
+        MONTH(sale_date) AS month,
+        AVG(total_sale) AS avg_sale,
+        RANK() OVER (PARTITION BY YEAR(sale_date) ORDER BY AVG(total_sale) DESC) AS rank_sale
+    FROM sql_project1.retail_sales
+    GROUP BY YEAR(sale_date), MONTH(sale_date)
+) AS t1 
+WHERE rank_sale = 1;
 ```
 
-8. **Write a SQL query to find the top 5 customers based on the highest total sales **:
+8. **Write a SQL query to find the top 5 customers based on the highest total sales**:
 ```sql
-SELECT 
-    customer_id,
-    SUM(total_sale) as total_sales
-FROM retail_sales
+SELECT customer_id,
+ SUM(total_sale) as total_sale
+FROM  sql_project1.retail_sales
 GROUP BY 1
 ORDER BY 2 DESC
 LIMIT 5
+
 ```
 
 9. **Write a SQL query to find the number of unique customers who purchased items from each category.**:
 ```sql
 SELECT 
-    category,    
-    COUNT(DISTINCT customer_id) as cnt_unique_cs
-FROM retail_sales
-GROUP BY category
+     category,
+     COUNT(DISTINCT customer_id) AS cnt_unique_cs
+FROM  sql_project1.retail_sales 
+GROUP BY 1
 ```
 
 10. **Write a SQL query to create each shift and number of orders (Example Morning <12, Afternoon Between 12 & 17, Evening >17)**:
 ```sql
-WITH hourly_sale
-AS
-(
-SELECT *,
-    CASE
-        WHEN EXTRACT(HOUR FROM sale_time) < 12 THEN 'Morning'
-        WHEN EXTRACT(HOUR FROM sale_time) BETWEEN 12 AND 17 THEN 'Afternoon'
-        ELSE 'Evening'
-    END as shift
-FROM retail_sales
+WITH hourly_sale AS (
+    SELECT *,
+        CASE 
+            WHEN HOUR(sale_time) < 12 THEN 'Morning'
+            WHEN HOUR(sale_time) BETWEEN 12 AND 17 THEN 'Afternoon'
+            ELSE 'Evening'
+        END AS shift
+    FROM sql_project1.retail_sales
 )
 SELECT 
     shift,
-    COUNT(*) as total_orders    
+    COUNT(*) AS total_orders    
 FROM hourly_sale
-GROUP BY shift
+GROUP BY shift;
+
 ```
 
 ## Findings
